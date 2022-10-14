@@ -17,7 +17,7 @@
     }
   ],
   "manifest_version": 2,
-  "name": "Media Control",
+  "name": "Tabs Media Controller",
   "permissions": [
     "tabs"
   ],
