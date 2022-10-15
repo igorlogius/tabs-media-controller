@@ -17,13 +17,21 @@ function handleQuery(){
     let count = 0;
     for(const el of els){
         mediaElements.set(count, el); // required for controlling later
-        ret.push({
-                poster: (el.tagName.toLowerCase() === 'video' ? getThumbnail(el) : ''),
-                id: count,
-                type: el.tagName.toLowerCase(),
-                playing: !el.paused,
-                muted: el.muted
-        });
+        if(
+             /*
+                   el.paused === false
+             ||  el.autoplay === true
+            */
+            !isNaN(el.duration)  // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/duration
+        ){
+            ret.push({
+                    poster: (el.tagName.toLowerCase() === 'video' ? getThumbnail(el) : ''),
+                    id: count,
+                    type: el.tagName.toLowerCase(),
+                    playing: !el.paused,
+                    muted: el.muted
+            });
+        }
         count++;
     }
     return ret;
