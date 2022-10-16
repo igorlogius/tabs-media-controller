@@ -9,13 +9,17 @@ const tablist = document.getElementById('tabs');
 
 async function sendMessageToTabs(tabs) {
 
+    let first = true;
    // 1. determine which tabs have media elements available and playing
   for (const tab of tabs) {
     try {
         const res = await browser.tabs.sendMessage(tab.id, { cmd: 'query' });
-        console.debug(JSON.stringify(res, null, 4));
+        //console.debug(JSON.stringify(res, null, 4));
         if(res.length > 0){
-            tablist.textContent = '';
+            if(first){
+                tablist.textContent = '';
+                first = false;
+            }
             let tabdiv = document.createElement('div');
             const url = new URL(tab.url);
             tabdiv.textContent = 'Tab ' + tab.index + " : " + url.hostname;
