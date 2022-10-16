@@ -136,6 +136,9 @@ async function sendMessageToTabs(tabs) {
 
 ( async () => {
   const tabs = await browser.tabs.query({
+      hidden: false,
+      discarded: false,
+      status: 'complete',
       currentWindow: true
     });
     sendMessageToTabs(tabs);
