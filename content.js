@@ -4,7 +4,7 @@ const mediaElements = new Map();
 function getThumbnail(video) {
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, 100, 100);
+    ctx.drawImage(video, 0, 0, 300,200);
     return canvas.toDataURL();
 }
 
@@ -26,10 +26,13 @@ function handleQuery(){
         ){
             ret.push({
                     poster: (el.tagName.toLowerCase() === 'video' ? getThumbnail(el) : ''),
-                    id: count,
                     type: el.tagName.toLowerCase(),
+                    duration: el.duration,
+                    currentTime: el.currentTime,
                     playing: !el.paused,
-                    muted: el.muted
+                    volume: el.volume,
+                    muted: el.muted,
+                    id: count
             });
         }
         count++;
@@ -102,6 +105,30 @@ async function handleFullscreen(ids){
     }
 }
 
+async function handleVolume(id,volume){
+    if(mediaElements.has(id)){
+        try {
+            mediaElements.get(id).volume = volume;
+            return true;
+        }catch(e){
+            console.error(e);
+            return false;
+        }
+    }
+}
+
+async function handleCurrentTime(id,currentTime){
+    if(mediaElements.has(id)){
+        try {
+            mediaElements.get(id).currentTime = currentTime;
+            return true;
+        }catch(e){
+            console.error(e);
+            return false;
+        }
+    }
+}
+
 browser.runtime.onMessage.addListener((request) => {
     console.debug('onMessage',JSON.stringify(request,null,4));
     switch(request.cmd){
@@ -125,6 +152,12 @@ browser.runtime.onMessage.addListener((request) => {
             break;
         case 'fullscreen':
             return Promise.resolve(handleFullscreen(request.ids));
+            break;
+        case 'volume':
+            return Promise.resolve(handleVolume(request.id, request.volume));
+            break;
+        case 'currentTime':
+            return Promise.resolve(handleCurrentTime(request.id, request.currentTime));
             break;
         default:
             console.error('unknown request', request);
