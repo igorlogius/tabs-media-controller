@@ -3,9 +3,6 @@
   "browser_action": {
     "default_popup": "popup.html"
   },
-  "background": {
-	"scripts": ["background.js"]
-  },
   "content_scripts": [
     {
       "js": [
@@ -16,10 +13,13 @@
       ]
     }
   ],
+  "icons": {
+    "256": "icon.png"
+  },
   "manifest_version": 2,
   "name": "Tabs Media Controller",
   "permissions": [
     "tabs"
   ],
-  "version": "1.1.1"
+  "version": "1.1.2"
 }

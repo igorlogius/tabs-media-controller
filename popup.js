@@ -15,6 +15,7 @@ async function sendMessageToTabs(tabs) {
         const res = await browser.tabs.sendMessage(tab.id, { cmd: 'query' });
         console.debug(JSON.stringify(res, null, 4));
         if(res.length > 0){
+            tablist.textContent = '';
             let tabdiv = document.createElement('div');
             const url = new URL(tab.url);
             tabdiv.textContent = 'Tab ' + tab.index + " : " + url.hostname;
