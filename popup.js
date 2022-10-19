@@ -11,6 +11,7 @@ async function sendMessageToTabs(tabs) {
 
     let first = true;
    // 1. determine which tabs have media elements available and playing
+
   for (const tab of tabs) {
     try {
         const res = await browser.tabs.sendMessage(tab.id, { cmd: 'query' });
@@ -20,14 +21,41 @@ async function sendMessageToTabs(tabs) {
                 tablist.textContent = '';
                 first = false;
             }
-            let tabdiv = document.createElement('div');
             const url = new URL(tab.url);
-            tabdiv.textContent = 'Tab ' + tab.index + " : " + url.hostname;
+
+            let tabdiv = document.createElement('div');
+            tabdiv.style = 'padding-bottom:5px;'
+            //tabdiv.textContent = 'Tab ' + tab.index + " : " + url.hostname;
             tablist.appendChild(tabdiv);
+
+            let tablink = document.createElement('button');
+            tablink.textContent = 'Tab ' + tab.index + " - " + url.hostname;
+            tablink.style = 'word-break: break-all;width:370px;text-align:left;';
+            tablink.setAttribute('title', "click to focus");
+            tablink.onclick = () => {
+                browser.tabs.highlight({tabs: [tab.index]});
+            }
+            tabdiv.appendChild(tablink);
+
+            let once = true;
+
             for(const e of res) {
                 let elementrow = document.createElement('div');
-                elementrow.style   = 'position: relative;width:640px;height: 150px; border: 1px solid black;margin:0px;padding:0px;background-image: url(' + e.poster + '); background-repeat: no-repeat; background-size: 100% 100%; background-attachment: fixed;';
+                elementrow.style   = 'position: relative;width:350px;height: 100px; border: 1px solid black;margin:0px;padding:0px;background-image: url(' + e.poster + '); background-repeat: no-repeat; background-size: 100% 100%; background-attachment: fixed;padding:10px;';
                 tabdiv.appendChild(elementrow);
+
+
+                // focus
+                /**/
+                let focusbtn = document.createElement('button');
+                focusbtn.textContent = 'focus'
+                focusbtn.style   = 'float:right;';
+                elementrow.appendChild(focusbtn);
+                focusbtn.onclick = async (evt) => {
+                    await browser.tabs.highlight({tabs: [tab.index]});
+                    await browser.tabs.sendMessage(tab.id, { cmd: evt.target.textContent , id: e.id });
+                }
+                /**/
 
                 // id
                 /*
@@ -46,7 +74,7 @@ async function sendMessageToTabs(tabs) {
                 elementrow.appendChild(posterImg);
                 */
                 let controls = document.createElement('div');
-                controls.style = 'float:right;position:absolute;bottom:0;right:0;width:100%;';
+                controls.style = 'position:absolute;bottom:0;right:-20;width:90%;padding:10px;';
                 elementrow.appendChild(controls);
 
                 // mute / unmute
@@ -78,6 +106,10 @@ async function sendMessageToTabs(tabs) {
                     }
                 });
 
+                if(e.playing && once){
+                   once = false;
+                   tablink.textContent = tablink.textContent + " - playing";
+                }
 
                 // play / pause
                 let playpausebtn = document.createElement('button');
@@ -85,6 +117,7 @@ async function sendMessageToTabs(tabs) {
                 playpausebtn.style   = 'float:right;width:15%;';
                 controls.appendChild(playpausebtn);
                 playpausebtn.onclick = async (evt) => {
+                    evt.preventDefault();
                     const notstate = await browser.tabs.sendMessage(tab.id, { cmd: evt.target.textContent , ids: [e.id] });
                     if(notstate){
                         evt.target.textContent = notstate;
@@ -129,13 +162,14 @@ async function sendMessageToTabs(tabs) {
             }
         }
     }catch(e){
-        onError(e);
+        console.error('tab ', tab.index);
     }
   }
 }
 
 ( async () => {
   const tabs = await browser.tabs.query({
+      url: ['<all_urls>'],
       hidden: false,
       discarded: false,
       status: 'complete',

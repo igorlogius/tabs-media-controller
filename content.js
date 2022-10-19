@@ -1,3 +1,4 @@
+/*global browser */
 
 const mediaElements = new Map();
 
@@ -129,6 +130,19 @@ async function handleCurrentTime(id,currentTime){
     }
 }
 
+async function handleFocus(id){
+    console.debug('handleFocus',id);
+    if(mediaElements.has(id)){
+        try {
+            console.debug('scrollIntoView');
+            mediaElements.get(id).scrollIntoView();
+            return true;
+        }catch(e){
+            console.error(e);
+            return false;
+        }
+    }
+}
 browser.runtime.onMessage.addListener((request) => {
     console.debug('onMessage',JSON.stringify(request,null,4));
     switch(request.cmd){
@@ -158,6 +172,9 @@ browser.runtime.onMessage.addListener((request) => {
             break;
         case 'currentTime':
             return Promise.resolve(handleCurrentTime(request.id, request.currentTime));
+            break;
+        case 'focus':
+            return Promise.resolve(handleFocus(request.id));
             break;
         default:
             console.error('unknown request', request);
