@@ -24,24 +24,52 @@ async function sendMessageToTabs(tabs) {
             const url = new URL(tab.url);
 
             let tabdiv = document.createElement('div');
-            tabdiv.style = 'padding-bottom:5px;'
+            tabdiv.style = 'padding-bottom:5px;margin-bottom:5px;'
             //tabdiv.textContent = 'Tab ' + tab.index + " : " + url.hostname;
             tablist.appendChild(tabdiv);
 
             let tablink = document.createElement('button');
-            tablink.textContent = 'Tab ' + tab.index + " - " + url.hostname;
-            tablink.style = 'word-break: break-all;width:370px;text-align:left;';
+            tablink.textContent = 'Tab ' + tab.index + " - " + url.hostname + ' (focus)';
+            tablink.style = 'word-break: break-all;width:50%;text-align:left;';
+            tabdiv.appendChild(tablink);
             tablink.setAttribute('title', "click to focus");
             tablink.onclick = () => {
                 browser.tabs.highlight({tabs: [tab.index]});
             }
-            tabdiv.appendChild(tablink);
+
+            /*
+            let focustabbtn= document.createElement('button');
+            focustabbtn.textContent = 'focus';
+            focustabbtn.style   = 'float:right;';
+            tabdiv.appendChild(focustabbtn);
+            focustabbtn.onclick = async (evt) => {
+                browser.tabs.highlight({tabs: [tab.index]});
+            }
+            */
+
+            let mutetabbtn= document.createElement('button');
+            mutetabbtn.textContent = tab.mutedInfo.muted? 'unmute':'mute';
+            mutetabbtn.style   = 'float:right;';
+            tabdiv.appendChild(mutetabbtn);
+            mutetabbtn.onclick = async (evt) => {
+                const t = await browser.tabs.get(tab.id);
+                browser.tabs.update(tab.id,{muted: !t.mutedInfo.muted});
+                mutetabbtn.textContent = (!t.mutedInfo.muted?'unmute': 'mute');
+            }
+
+            let pausetabbtn= document.createElement('button');
+            pausetabbtn.textContent = 'pause';
+            pausetabbtn.style   = 'float:right;';
+            tabdiv.appendChild(pausetabbtn);
+            pausetabbtn.onclick = async (evt) => {
+                await browser.tabs.sendMessage(tab.id, { cmd: 'pauseAll' });
+            }
 
             let once = true;
 
             for(const e of res) {
                 let elementrow = document.createElement('div');
-                elementrow.style   = 'position: relative;width:350px;height: 100px; border: 1px solid black;margin:0px;padding:0px;background-image: url(' + e.poster + '); background-repeat: no-repeat; background-size: 100% 100%; background-attachment: fixed;padding:10px;';
+                elementrow.style   = 'position: relative;width:450px;height: 100px; border: 1px solid black;margin:0px;padding:0px;background-image: url(' + e.poster + '); background-repeat: no-repeat; background-size: 100% 100%; background-attachment: fixed;padding:10px;';
                 tabdiv.appendChild(elementrow);
 
 
@@ -117,7 +145,6 @@ async function sendMessageToTabs(tabs) {
                 playpausebtn.style   = 'float:right;width:15%;';
                 controls.appendChild(playpausebtn);
                 playpausebtn.onclick = async (evt) => {
-                    evt.preventDefault();
                     const notstate = await browser.tabs.sendMessage(tab.id, { cmd: evt.target.textContent , ids: [e.id] });
                     if(notstate){
                         evt.target.textContent = notstate;
@@ -162,7 +189,7 @@ async function sendMessageToTabs(tabs) {
             }
         }
     }catch(e){
-        console.error('tab ', tab.index);
+        console.error('tab ', tab.index,e);
     }
   }
 }

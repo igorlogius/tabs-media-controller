@@ -51,6 +51,14 @@ function handlePause(ids){
     return 'play';
 }
 
+function handlePauseAll(ids){
+    console.debug('handlePause');
+    for(const [id,el] of mediaElements){
+        el.pause();
+    }
+    return 'ok';
+}
+
 function handlePlay(ids){
     console.debug('handlePlay');
     for(const id of ids){
@@ -154,6 +162,9 @@ browser.runtime.onMessage.addListener((request) => {
             break;
         case 'pause':
             return Promise.resolve(handlePause(request.ids));
+            break;
+        case 'pauseAll':
+            return Promise.resolve(handlePauseAll());
             break;
         case 'mute':
             return Promise.resolve(handleMute(request.ids));
