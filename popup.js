@@ -30,7 +30,7 @@ async function sendMessageToTabs(tabs) {
 
             let tablink = document.createElement('button');
             tablink.textContent = 'Tab ' + tab.index + " - " + url.hostname + ' (focus)';
-            tablink.style = 'word-break: break-all;width:50%;text-align:left;';
+            tablink.style = 'word-break: break-all;width:70%;text-align:left;';
             tabdiv.appendChild(tablink);
             tablink.setAttribute('title', "click to focus");
             tablink.onclick = () => {
@@ -48,21 +48,30 @@ async function sendMessageToTabs(tabs) {
             */
 
             let mutetabbtn= document.createElement('button');
-            mutetabbtn.textContent = tab.mutedInfo.muted? 'unmute':'mute';
+            mutetabbtn.textContent = tab.mutedInfo.muted? 'unmuteAll':'muteAll';
             mutetabbtn.style   = 'float:right;';
             tabdiv.appendChild(mutetabbtn);
             mutetabbtn.onclick = async (evt) => {
                 const t = await browser.tabs.get(tab.id);
                 browser.tabs.update(tab.id,{muted: !t.mutedInfo.muted});
-                mutetabbtn.textContent = (!t.mutedInfo.muted?'unmute': 'mute');
+                mutetabbtn.textContent = (!t.mutedInfo.muted?'unmuteAll': 'muteAll');
             }
 
             let pausetabbtn= document.createElement('button');
-            pausetabbtn.textContent = 'pause';
+            pausetabbtn.textContent = 'pauseAll';
             pausetabbtn.style   = 'float:right;';
             tabdiv.appendChild(pausetabbtn);
             pausetabbtn.onclick = async (evt) => {
                 await browser.tabs.sendMessage(tab.id, { cmd: 'pauseAll' });
+
+                if(tablink.textContent.endsWith(' - playing')){
+                    tablink.textContent = tablink.textContent.substr(0,tablink.textContent.length-10);
+                    tabdiv.querySelectorAll('button').forEach( el => {
+                        if(el.textContent === 'pause'){
+                            el.textContent = 'play';
+                        }
+                    });
+                }
             }
 
             let once = true;
@@ -148,6 +157,11 @@ async function sendMessageToTabs(tabs) {
                     const notstate = await browser.tabs.sendMessage(tab.id, { cmd: evt.target.textContent , ids: [e.id] });
                     if(notstate){
                         evt.target.textContent = notstate;
+                        if(!evt.target.textContent.endsWith(' - playing') && notstate === 'pause'){
+                            tablink.textContent = tablink.textContent + " - playing";
+                        }else{
+                            tablink.textContent = tablink.textContent.substr(0,tablink.textContent.length-10);
+                        }
                     }
                 }
 
