@@ -190,7 +190,7 @@ console.debug("content.js");
 setTimeout(() => {
   console.debug("injecting media.js into document head ");
   var s = document.createElement("script");
-  s.src = browser.runtime.getURL("media.js");
+  s.src = browser.runtime.getURL("attach.js");
   s.onload = () => s.remove();
   document.head.appendChild(s);
 }, 5000);
