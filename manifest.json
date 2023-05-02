@@ -1,16 +1,14 @@
 {
   "author": "igorlogius",
+  "homepage_url": "https://github.com/igorlogius/tabs-media-controller",
   "browser_action": {
+    "default_area": "navbar",
     "default_popup": "popup.html"
   },
   "content_scripts": [
     {
-      "js": [
-        "content.js"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "js": ["content.js"],
+      "matches": ["<all_urls>"]
     }
   ],
   "icons": {
@@ -18,8 +16,7 @@
   },
   "manifest_version": 2,
   "name": "Tabs Media Controller",
-  "permissions": [
-    "tabs"
-  ],
-  "version": "1.3.5"
+  "permissions": ["tabs"],
+  "version": "1.4.5",
+  "web_accessible_resources": ["attach.js"]
 }
