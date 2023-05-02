@@ -54,7 +54,7 @@ function handlePause(ids) {
 
 function handlePauseAll() {
   console.debug("handlePause");
-  for (const [ , el] of mediaElements) {
+  for (const [, el] of mediaElements) {
     el.pause();
   }
   return "ok";
