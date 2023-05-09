@@ -17,6 +17,6 @@
   "manifest_version": 2,
   "name": "Tabs Media Controller",
   "permissions": ["tabs"],
-  "version": "1.4.6",
+  "version": "1.4.7",
   "web_accessible_resources": ["attach.js"]
 }

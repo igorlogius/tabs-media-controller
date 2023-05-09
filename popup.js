@@ -24,7 +24,7 @@ async function sendMessageToTabs(tabs) {
 
         let tablink = document.createElement("button");
         tablink.textContent =
-          "Tab " + tab.index + " - " + url.hostname + " (focus)";
+          "#" + tab.index + " " + url.hostname;
         tablink.style = "word-break: break-all;width:50%;text-align:left;";
         tabdiv.appendChild(tablink);
         tablink.setAttribute("title", "click to focus");
@@ -108,7 +108,7 @@ async function sendMessageToTabs(tabs) {
           let elementrow = document.createElement("div");
           elementrow.style =
             "position: relative;width:650px;height: 100px; border: 1px solid black;margin:0px;padding:0px;background-image: url(" +
-            e.poster +
+            (e.poster || 'audio.png') +
             "); background-repeat: no-repeat; background-size: 100% 100%; background-attachment: fixed;padding:10px;";
           tabdiv.appendChild(elementrow);
 
