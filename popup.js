@@ -1,5 +1,10 @@
 /* global browser */
 
+async function getFromStorage(type, id, fallback) {
+  let tmp = await browser.storage.local.get(id);
+  return typeof tmp[id] === type ? tmp[id] : fallback;
+}
+
 const tablist = document.getElementById("tabs");
 
 async function sendMessageToTabs(tabs) {
@@ -259,6 +264,10 @@ async function sendMessageToTabs(tabs) {
 }
 
 (async () => {
+  let bgcolor = await getFromStorage("string", "bgcolor", "#ffffff");
+
+  document.body.style.background = bgcolor;
+
   const tabs = await browser.tabs.query({
     url: ["<all_urls>"],
     discarded: false,
