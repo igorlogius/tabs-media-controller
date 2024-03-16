@@ -27,11 +27,11 @@ function onChange(evt) {
 
   obj[id] = value;
 
-  //console.log(id,value);
+  console.log(id, value);
   browser.storage.local.set(obj).catch(console.error);
 }
 
-["bgcolor"].map((id) => {
+["styles"].map((id) => {
   browser.storage.local
     .get(id)
     .then((obj) => {

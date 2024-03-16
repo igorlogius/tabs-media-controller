@@ -4,9 +4,68 @@
   <style></style>
 </head>
 <body>
-  <span
-    >Background Color:
-    <input type="color" id="bgcolor" value="#d3d3d3" />
-  </span>
+  Enter your own stylesheet data here
+  <textarea style="height: 50em" id="styles">
+
+/* The World is your canvas, have fun */
+
+body {
+  margin:10px;
+  padding:10px;
+  border: 1px solid black;
+}
+#tabs {
+  display: flex;
+  flex-flow: column wrap;
+}
+.tabDiv {
+ border: 1px solid red;
+}
+.tabFocusBtn {
+  width: 100%;
+  word-break: break-all;
+}
+.tabMuteBtn {
+  width: 25%;
+}
+.tabPauseBtn {
+  width: 25%;
+}
+.sitePauseBtn {
+  width: 25%;
+}
+.siteMuteBtn {
+  width: 25%;
+}
+.elementDiv {
+ border: 1px solid red;
+  width: 100%;
+}
+.previewImg {
+  width: 50%;
+  margin-left:25%;
+}
+.elementFocusBtn {
+  width: 70%;
+  margin-left:15%;
+}
+.elementMuteBtn {
+  width: 70%;
+  margin-left:15%;
+}
+.elementVolumeBtn {
+  width: 70%;
+  margin-left:15%;
+}
+.elementPlayPauseBtn {
+  width: 70%;
+  margin-left:15%;
+}
+.elementPositionInput {
+  width: 70%;
+  margin-left:15%;
+}
+
+  </textarea>
   <script src="options.js"></script>
 </body>

@@ -23,13 +23,15 @@ async function sendMessageToTabs(tabs) {
         const url = new URL(tab.url);
 
         let tabdiv = document.createElement("div");
-        tabdiv.style = "padding-bottom:5px;margin-bottom:5px;";
+        //tabdiv.style = "padding-bottom:5px;margin-bottom:5px;";
         //tabdiv.textContent = 'Tab ' + tab.index + " : " + url.hostname;
+        tabdiv.classList.add("tabDiv");
         tablist.appendChild(tabdiv);
 
         let tablink = document.createElement("button");
         tablink.textContent = "#" + tab.index + " " + url.hostname;
-        tablink.style = "word-break: break-all;width:50%;text-align:left;";
+        //tablink.style = "word-break: break-all;width:50%;text-align:left;";
+        tablink.classList.add("tabFocusBtn");
         tabdiv.appendChild(tablink);
         tablink.setAttribute("title", "click to focus");
         tablink.onclick = () => {
@@ -50,7 +52,8 @@ async function sendMessageToTabs(tabs) {
         mutetabbtn.textContent = tab.mutedInfo.muted
           ? "unmute(tab)"
           : "mute(tab)";
-        mutetabbtn.style = "float:right;";
+        //mutetabbtn.style = "float:right;";
+        mutetabbtn.classList.add("tabMuteBtn");
         tabdiv.appendChild(mutetabbtn);
         mutetabbtn.onclick = async () => {
           const t = await browser.tabs.get(tab.id);
@@ -62,7 +65,8 @@ async function sendMessageToTabs(tabs) {
 
         let pausetabbtn = document.createElement("button");
         pausetabbtn.textContent = "pause(tab)";
-        pausetabbtn.style = "float:right;";
+        //pausetabbtn.style = "float:right;";
+        pausetabbtn.classList.add("tabPauseBtn");
         tabdiv.appendChild(pausetabbtn);
         pausetabbtn.onclick = async () => {
           await browser.tabs.sendMessage(tab.id, { cmd: "pauseAll" });
@@ -82,7 +86,8 @@ async function sendMessageToTabs(tabs) {
 
         let pauseOriginbtn = document.createElement("button");
         pauseOriginbtn.textContent = "pause(site)";
-        pauseOriginbtn.style = "float:right;";
+        //pauseOriginbtn.style = "float:right;";
+        pauseOriginbtn.classList.add("sitePauseBtn");
         tabdiv.appendChild(pauseOriginbtn);
         pauseOriginbtn.onclick = async () => {
           for (const tt of tabs) {
@@ -95,7 +100,8 @@ async function sendMessageToTabs(tabs) {
 
         let muteOriginbtn = document.createElement("button");
         muteOriginbtn.textContent = "mute(site)";
-        muteOriginbtn.style = "float:right;";
+        //muteOriginbtn.style = "float:right;";
+        muteOriginbtn.classList.add("siteMuteBtn");
         tabdiv.appendChild(muteOriginbtn);
         muteOriginbtn.onclick = async () => {
           for (const tt of tabs) {
@@ -110,17 +116,26 @@ async function sendMessageToTabs(tabs) {
 
         for (const e of res) {
           let elementrow = document.createElement("div");
+          /*
           elementrow.style =
             "position: relative;width:650px;height: 100px; border: 1px solid black;margin:0px;padding:0px;background-image: url(" +
             (e.poster || "audio.png") +
             "); background-repeat: no-repeat; background-size: 100% 100%; background-attachment: fixed;padding:10px;";
+            */
+          elementrow.classList.add("elementDiv");
           tabdiv.appendChild(elementrow);
+
+          let previewImg = document.createElement("img");
+          previewImg.src = e.poster || "audio.png";
+          previewImg.classList.add("previewImg");
+          elementrow.appendChild(previewImg);
 
           // focus
           /**/
           let focusbtn = document.createElement("button");
           focusbtn.textContent = "focus";
-          focusbtn.style = "float:right;";
+          //focusbtn.style = "float:right;";
+          focusbtn.classList.add("elementFocusBtn");
           elementrow.appendChild(focusbtn);
           focusbtn.onclick = async (evt) => {
             await browser.tabs.highlight({ tabs: [tab.index] });
@@ -148,15 +163,19 @@ async function sendMessageToTabs(tabs) {
                 elementrow.appendChild(posterImg);
                 */
           let controls = document.createElement("div");
+          /*
           controls.style =
             "position:absolute;bottom:0;right:-20;width:90%;padding:10px;";
+            */
+          controls.classList.add("elementControlsDiv");
           elementrow.appendChild(controls);
 
           // mute / unmute
           let mutebtn = document.createElement("button");
           mutebtn.textContent = e.muted ? "unmute" : "mute";
-          mutebtn.style = "float:right;";
-          elementrow.appendChild(mutebtn);
+          //mutebtn.style = "float:right;";
+          mutebtn.classList.add("elementMuteBtn");
+          controls.appendChild(mutebtn);
           mutebtn.onclick = async (evt) => {
             const notstate = await browser.tabs.sendMessage(tab.id, {
               cmd: evt.target.textContent,
@@ -174,8 +193,9 @@ async function sendMessageToTabs(tabs) {
           volumebtn.setAttribute("max", "100");
           volumebtn.setAttribute("step", "1");
           volumebtn.setAttribute("value", e.volume * 100);
-          volumebtn.style = "float:right;";
-          elementrow.appendChild(volumebtn);
+          //volumebtn.style = "float:right;";
+          volumebtn.classList.add("elementVolumeBtn");
+          controls.appendChild(volumebtn);
           volumebtn.addEventListener("input", async (evt) => {
             const notstate = await browser.tabs.sendMessage(tab.id, {
               cmd: "volume",
@@ -196,7 +216,8 @@ async function sendMessageToTabs(tabs) {
           // play / pause
           let playpausebtn = document.createElement("button");
           playpausebtn.textContent = e.playing ? "pause" : "play";
-          playpausebtn.style = "float:right;width:15%;";
+          //playpausebtn.style = "float:right;width:15%;";
+          playpausebtn.classList.add("elementPlayPauseBtn");
           controls.appendChild(playpausebtn);
           playpausebtn.onclick = async (evt) => {
             const notstate = await browser.tabs.sendMessage(tab.id, {
@@ -230,7 +251,9 @@ async function sendMessageToTabs(tabs) {
           }
           //currentTimebtn.setAttribute('step', e.currentTime);
           currentTimebtn.setAttribute("value", e.currentTime);
-          currentTimebtn.style = "float:right;width:75%;";
+          //currentTimebtn.style = "float:right;width:75%;";
+
+          currentTimebtn.classList.add("elementPositionInput");
           controls.appendChild(currentTimebtn);
           currentTimebtn.addEventListener("input", async (evt) => {
             console.debug(evt.target.value);
@@ -264,9 +287,76 @@ async function sendMessageToTabs(tabs) {
 }
 
 (async () => {
-  let bgcolor = await getFromStorage("string", "bgcolor", "#ffffff");
+  const styles = await getFromStorage(
+    "string",
+    "styles",
+    `
+/* The World is your canvas, have fun */
 
-  document.body.style.background = bgcolor;
+body {
+  margin:10px;
+  padding:10px;
+  border: 1px solid black;
+}
+#tabs {
+  display: flex;
+  flex-flow: column wrap;
+}
+.tabDiv {
+ border: 1px solid red;
+}
+.tabFocusBtn {
+  width: 100%;
+  word-break: break-all;
+}
+.tabMuteBtn {
+  width: 25%;
+}
+.tabPauseBtn {
+  width: 25%;
+}
+.sitePauseBtn {
+  width: 25%;
+}
+.siteMuteBtn {
+  width: 25%;
+}
+.elementDiv {
+ border: 1px solid red;
+  width: 100%;
+}
+.previewImg {
+  width: 50%;
+  margin-left:25%;
+}
+.elementFocusBtn {
+  width: 70%;
+  margin-left:15%;
+}
+.elementMuteBtn {
+  width: 70%;
+  margin-left:15%;
+}
+.elementVolumeBtn {
+  width: 70%;
+  margin-left:15%;
+}
+.elementPlayPauseBtn {
+  width: 70%;
+  margin-left:15%;
+}
+.elementPositionInput {
+  width: 70%;
+  margin-left:15%;
+}
+`
+  );
+
+  //document.body.style.background = bgcolor;
+
+  let styleSheet = document.createElement("style");
+  styleSheet.innerText = styles;
+  document.head.appendChild(styleSheet);
 
   const tabs = await browser.tabs.query({
     url: ["<all_urls>"],
