@@ -1,6 +1,10 @@
 Control Audio and Video Elements from all tabs from the toolbar button popup
 menu
 
+<b>Short Demo Video: </b>
+
+https://github.com/igorlogius/tabs-media-controller/assets/67047467/f11746cb-ec24-4975-9792-cd3102b4d246
+
 <b>Features:</b>
 <ul>
   <li>Stop and Start Playback</li>
