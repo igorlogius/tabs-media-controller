@@ -43,7 +43,7 @@ async function onCommand(cmd) {
       tabs.sort((a, b) => {
         return b - a;
       });
-      if (atab.index === tabs[tabs.length -1]) {
+      if (atab.index === tabs[tabs.length - 1]) {
         browser.tabs.highlight({
           windowId: atab.windowId,
           tabs: [tabs[0]],
