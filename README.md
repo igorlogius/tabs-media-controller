@@ -1,5 +1,6 @@
-Control Audio and Video Elements from all tabs from the toolbar button popup
-menu
+Control Audio and Video Elements from all tabs from the toolbar button popup menu
+
+### [Click here to report a bug, make a suggestion or ask a question](https://github.com/igorlogius/igorlogius/issues/new/choose)
 
 <b>Short Demo Video:</b>
 
