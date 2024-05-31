@@ -35,7 +35,7 @@ async function sendMessageToTabs(tabs) {
         tabdiv.appendChild(tablink);
         tablink.setAttribute("title", "click to focus");
         tablink.onclick = () => {
-          browser.tabs.highlight({ tabs: [tab.index] });
+          browser.tabs.highlight({ windowId: tab.windowId, tabs: [tab.index] });
         };
 
         /*
@@ -44,7 +44,7 @@ async function sendMessageToTabs(tabs) {
             focustabbtn.style   = 'float:right;';
             tabdiv.appendChild(focustabbtn);
             focustabbtn.onclick = async (evt) => {
-                browser.tabs.highlight({tabs: [tab.index]});
+                browser.tabs.highlight({windowId: tab.windowId, tabs: [tab.index]});
             }
             */
 
@@ -138,7 +138,8 @@ async function sendMessageToTabs(tabs) {
           focusbtn.classList.add("elementFocusBtn");
           elementrow.appendChild(focusbtn);
           focusbtn.onclick = async (evt) => {
-            await browser.tabs.highlight({ tabs: [tab.index] });
+            await browser.windows.update(tab.windowId, { focused: true });
+            await browser.tabs.highlight({ windowId: tab.windowId, tabs: [tab.index] });
             await browser.tabs.sendMessage(tab.id, {
               cmd: evt.target.textContent,
               id: e.id,
@@ -296,7 +297,6 @@ async function sendMessageToTabs(tabs) {
 body {
   margin:10px;
   padding:10px;
-  border: 1px solid black;
 }
 #tabs {
   display: flex;
