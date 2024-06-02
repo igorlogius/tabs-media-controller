@@ -1,6 +1,7 @@
 {
   "author": "igorlogius",
-  "homepage_url": "https://github.com/igorlogius",
+  "homepage_url": "https://github.com/igorlogius/tabs-media-controller",
+  "description": "Control audio and video elements from all tabs via the toolbar button popup menu",
   "background": {
     "scripts": ["background.js"]
   },
@@ -31,6 +32,6 @@
     "page": "options.html"
   },
   "permissions": ["storage", "tabs"],
-  "version": "1.5.13",
+  "version": "1.5.14",
   "web_accessible_resources": ["attach.js"]
 }
