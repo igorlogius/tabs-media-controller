@@ -49,3 +49,19 @@ function onChange(evt) {
   let el = document.getElementById(id);
   el.addEventListener("input", onChange);
 });
+
+document.getElementById("reset").addEventListener("click", async () => {
+  if (
+    !confirm(
+      "Are you sure?\nThe current stylesheet data will be lost when you click on ok.",
+    )
+  ) {
+    return;
+  }
+
+  let tmp = await fetch(browser.runtime.getURL("default.css"));
+  tmp = await tmp.text();
+  let el = document.getElementById("styles");
+  el.value = tmp;
+  browser.storage.local.set({ styles: tmp });
+});

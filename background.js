@@ -60,3 +60,11 @@ async function onCommand(cmd) {
 }
 
 browser.commands.onCommand.addListener(onCommand);
+
+browser.runtime.onInstalled.addListener(async (details) => {
+  if (details.reason === "install") {
+    let tmp = await fetch(browser.runtime.getURL("default.css"));
+    tmp = await tmp.text();
+    browser.storage.local.set({ styles: tmp });
+  }
+});
