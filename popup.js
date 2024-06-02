@@ -7,30 +7,35 @@ async function getFromStorage(type, id, fallback) {
 
 const tablist = document.getElementById("tabs");
 
-async function sendMessageToTabs(tabs) {
+async function queryTabs() {
   let first = true;
-  // 1. determine which tabs have media elements available and playing
+
+  const tabs = await browser.tabs.query({
+    url: ["<all_urls>"],
+    discarded: false,
+    status: "complete",
+  });
 
   for (const tab of tabs) {
     try {
-      const res = await browser.tabs.sendMessage(tab.id, { cmd: "query" });
+      const res = await browser.tabs.sendMessage(tab.id, { cmd: "queryAll" });
       //console.debug(JSON.stringify(res, null, 4));
+
       if (res.length > 0) {
         if (first) {
           tablist.textContent = "";
           first = false;
         }
+
         const url = new URL(tab.url);
 
         let tabdiv = document.createElement("div");
-        //tabdiv.style = "padding-bottom:5px;margin-bottom:5px;";
-        //tabdiv.textContent = 'Tab ' + tab.index + " : " + url.hostname;
         tabdiv.classList.add("tabDiv");
         tablist.appendChild(tabdiv);
 
         let tablink = document.createElement("button");
-        tablink.textContent = "#" + tab.index + " " + url.hostname;
-        //tablink.style = "word-break: break-all;width:50%;text-align:left;";
+        tablink.textContent =
+          "#" + tab.index + " " + url.hostname.replace(/^www\./, "");
         tablink.classList.add("tabFocusBtn");
         tabdiv.appendChild(tablink);
         tablink.setAttribute("title", "click to focus");
@@ -38,21 +43,10 @@ async function sendMessageToTabs(tabs) {
           browser.tabs.highlight({ windowId: tab.windowId, tabs: [tab.index] });
         };
 
-        /*
-            let focustabbtn= document.createElement('button');
-            focustabbtn.textContent = 'focus';
-            focustabbtn.style   = 'float:right;';
-            tabdiv.appendChild(focustabbtn);
-            focustabbtn.onclick = async (evt) => {
-                browser.tabs.highlight({windowId: tab.windowId, tabs: [tab.index]});
-            }
-            */
-
         let mutetabbtn = document.createElement("button");
         mutetabbtn.textContent = tab.mutedInfo.muted
           ? "unmute(tab)"
           : "mute(tab)";
-        //mutetabbtn.style = "float:right;";
         mutetabbtn.classList.add("tabMuteBtn");
         tabdiv.appendChild(mutetabbtn);
         mutetabbtn.onclick = async () => {
@@ -65,220 +59,133 @@ async function sendMessageToTabs(tabs) {
 
         let pausetabbtn = document.createElement("button");
         pausetabbtn.textContent = "pause(tab)";
-        //pausetabbtn.style = "float:right;";
         pausetabbtn.classList.add("tabPauseBtn");
         tabdiv.appendChild(pausetabbtn);
-        pausetabbtn.onclick = async () => {
-          await browser.tabs.sendMessage(tab.id, { cmd: "pauseAll" });
-
-          /*
-                if(tablink.textContent.endsWith(' - playing')){
-                    tablink.textContent = tablink.textContent.substr(0,tablink.textContent.length-10);
-                    tabdiv.querySelectorAll('button').forEach( el => {
-                        if(el.textContent === 'pause'){
-                            el.textContent = 'play';
-                        }
-                    });
-                }
-                */
-          window.close();
+        pausetabbtn.onclick = () => {
+          browser.tabs.sendMessage(tab.id, { cmd: "pauseAll" });
         };
 
         let pauseOriginbtn = document.createElement("button");
         pauseOriginbtn.textContent = "pause(site)";
-        //pauseOriginbtn.style = "float:right;";
         pauseOriginbtn.classList.add("sitePauseBtn");
         tabdiv.appendChild(pauseOriginbtn);
-        pauseOriginbtn.onclick = async () => {
+        pauseOriginbtn.onclick = () => {
           for (const tt of tabs) {
             if (tt.url.startsWith(url.origin)) {
-              await browser.tabs.sendMessage(tt.id, { cmd: "pauseAll" });
+              browser.tabs.sendMessage(tt.id, { cmd: "pauseAll" });
             }
           }
-          window.close();
         };
 
         let muteOriginbtn = document.createElement("button");
         muteOriginbtn.textContent = "mute(site)";
-        //muteOriginbtn.style = "float:right;";
         muteOriginbtn.classList.add("siteMuteBtn");
         tabdiv.appendChild(muteOriginbtn);
         muteOriginbtn.onclick = async () => {
           for (const tt of tabs) {
             if (tt.url.startsWith(url.origin)) {
-              await browser.tabs.update(tt.id, { muted: true });
+              browser.tabs.sendMessage(tt.id, {
+                cmd: "muteAll",
+              });
             }
           }
-          window.close();
         };
 
-        let once = true;
-
         for (const e of res) {
+          // media element
           let elementrow = document.createElement("div");
-          /*
-          elementrow.style =
-            "position: relative;width:650px;height: 100px; border: 1px solid black;margin:0px;padding:0px;background-image: url(" +
-            (e.poster || "audio.png") +
-            "); background-repeat: no-repeat; background-size: 100% 100%; background-attachment: fixed;padding:10px;";
-            */
+          elementrow.setAttribute("eid", e.id);
+          elementrow.setAttribute("tid", tab.id);
           elementrow.classList.add("elementDiv");
           tabdiv.appendChild(elementrow);
 
+          // poster
           let previewImg = document.createElement("img");
           previewImg.src = e.poster || "audio.png";
           previewImg.classList.add("previewImg");
           elementrow.appendChild(previewImg);
 
+          let controls = document.createElement("div");
+          controls.classList.add("elementControlsDiv");
+          elementrow.appendChild(controls);
+
           // focus
-          /**/
           let focusbtn = document.createElement("button");
           focusbtn.textContent = "focus";
-          //focusbtn.style = "float:right;";
           focusbtn.classList.add("elementFocusBtn");
-          elementrow.appendChild(focusbtn);
+          controls.appendChild(focusbtn);
           focusbtn.onclick = async (evt) => {
             await browser.windows.update(tab.windowId, { focused: true });
-            await browser.tabs.highlight({ windowId: tab.windowId, tabs: [tab.index] });
+            await browser.tabs.highlight({
+              windowId: tab.windowId,
+              tabs: [tab.index],
+            });
             await browser.tabs.sendMessage(tab.id, {
               cmd: evt.target.textContent,
               id: e.id,
             });
           };
-          /**/
 
-          // id
-          /*
-                let iddiv = document.createElement('span');
-                //iddiv.style = 'background-color:white;';
-                iddiv.textContent = e.id;
-                elementrow.appendChild(iddiv);
-                */
-
-          // poster
-          /*
-                let posterImg = document.createElement('img');
-                //posterImg.setAttribute('width','100');
-                posterImg.src = e.poster;
-                posterImg.style = 'border:1px solid green;';
-                elementrow.appendChild(posterImg);
-                */
-          let controls = document.createElement("div");
-          /*
-          controls.style =
-            "position:absolute;bottom:0;right:-20;width:90%;padding:10px;";
-            */
-          controls.classList.add("elementControlsDiv");
-          elementrow.appendChild(controls);
-
-          // mute / unmute
+          // mute
           let mutebtn = document.createElement("button");
           mutebtn.textContent = e.muted ? "unmute" : "mute";
-          //mutebtn.style = "float:right;";
           mutebtn.classList.add("elementMuteBtn");
           controls.appendChild(mutebtn);
-          mutebtn.onclick = async (evt) => {
-            const notstate = await browser.tabs.sendMessage(tab.id, {
+          mutebtn.onclick = (evt) => {
+            browser.tabs.sendMessage(tab.id, {
               cmd: evt.target.textContent,
               ids: [e.id],
             });
-            if (notstate) {
-              evt.target.textContent = notstate;
-            }
           };
 
-          // volume slider
+          // volume
           let volumebtn = document.createElement("input");
           volumebtn.setAttribute("type", "range");
           volumebtn.setAttribute("min", "0");
           volumebtn.setAttribute("max", "100");
           volumebtn.setAttribute("step", "1");
           volumebtn.setAttribute("value", e.volume * 100);
-          //volumebtn.style = "float:right;";
           volumebtn.classList.add("elementVolumeBtn");
           controls.appendChild(volumebtn);
-          volumebtn.addEventListener("input", async (evt) => {
-            const notstate = await browser.tabs.sendMessage(tab.id, {
+          volumebtn.addEventListener("input", (evt) => {
+            browser.tabs.sendMessage(tab.id, {
               cmd: "volume",
               id: e.id,
               volume: evt.target.value / 100,
             });
-            if (!notstate) {
-              //evt.target.value = notstate;
-              console.error("failed to set volume");
-            }
           });
-
-          if (e.playing && once) {
-            once = false;
-            tablink.textContent = tablink.textContent + " - playing";
-          }
 
           // play / pause
           let playpausebtn = document.createElement("button");
           playpausebtn.textContent = e.playing ? "pause" : "play";
-          //playpausebtn.style = "float:right;width:15%;";
           playpausebtn.classList.add("elementPlayPauseBtn");
           controls.appendChild(playpausebtn);
           playpausebtn.onclick = async (evt) => {
-            const notstate = await browser.tabs.sendMessage(tab.id, {
+            browser.tabs.sendMessage(tab.id, {
               cmd: evt.target.textContent,
               ids: [e.id],
             });
-            if (notstate) {
-              evt.target.textContent = notstate;
-              if (
-                !evt.target.textContent.endsWith(" - playing") &&
-                notstate === "pause"
-              ) {
-                tablink.textContent = tablink.textContent + " - playing";
-              } else {
-                tablink.textContent = tablink.textContent.substr(
-                  0,
-                  tablink.textContent.length - 10
-                );
-              }
-            }
           };
 
-          // volume slider
+          // currentTime
           let currentTimebtn = document.createElement("input");
           currentTimebtn.setAttribute("type", "range");
           currentTimebtn.setAttribute("min", "0");
           currentTimebtn.setAttribute("max", e.duration);
-          console.debug("duration", e.duration);
           if (e.duration === -1) {
             currentTimebtn.setAttribute("disabled", "disabled");
           }
-          //currentTimebtn.setAttribute('step', e.currentTime);
           currentTimebtn.setAttribute("value", e.currentTime);
-          //currentTimebtn.style = "float:right;width:75%;";
 
-          currentTimebtn.classList.add("elementPositionInput");
+          currentTimebtn.classList.add("elementTimeBtn");
           controls.appendChild(currentTimebtn);
-          currentTimebtn.addEventListener("input", async (evt) => {
-            console.debug(evt.target.value);
-            const notstate = await browser.tabs.sendMessage(tab.id, {
+          currentTimebtn.addEventListener("input", (evt) => {
+            browser.tabs.sendMessage(tab.id, {
               cmd: "currentTime",
               id: e.id,
               currentTime: evt.target.value,
             });
-            if (!notstate) {
-              //evt.target.value = notstate;
-              console.error("failed to set currentTime");
-            }
           });
-
-          /*
-                // fullscreen // doent work, because needs to be a short running user action ... bugzilla BUG
-                let fullscreenbtn = document.createElement('button');
-                fullscreenbtn.textContent = 'fullscreen';
-                elementrow.appendChild(fullscreenbtn);
-                fullscreenbtn.onclick = async (evt) => {
-                    await browser.tabs.highlight({tabs: [tab.index]});
-                    browser.tabs.sendMessage(tab.id, { cmd: evt.target.textContent , ids: [e.id] });
-                }
-                */
         }
       }
     } catch (e) {
@@ -295,15 +202,16 @@ async function sendMessageToTabs(tabs) {
 /* The World is your canvas, have fun */
 
 body {
-  margin:10px;
-  padding:10px;
+  padding:0;
+  margin:0;
+  background-color:silver;
 }
 #tabs {
-  display: flex;
-  flex-flow: column wrap;
+  padding:0;
+  margin:0;
 }
 .tabDiv {
- border: 1px solid red;
+  padding:10px;
 }
 .tabFocusBtn {
   width: 100%;
@@ -322,12 +230,21 @@ body {
   width: 25%;
 }
 .elementDiv {
- border: 1px solid red;
-  width: 100%;
+ width: 100%;
+ height: 150px;
 }
 .previewImg {
-  width: 50%;
-  margin-left:25%;
+  height: 150px;
+  float:left;
+  border:5px groove gray;
+}
+.elementControlsDiv {
+  position:relative;
+  border:5px groove gray;
+  height: 140px;
+  width: 250px;
+  float: left;
+  padding-top:10px;
 }
 .elementFocusBtn {
   width: 70%;
@@ -345,23 +262,49 @@ body {
   width: 70%;
   margin-left:15%;
 }
-.elementPositionInput {
+.elementTimeBtn {
   width: 70%;
   margin-left:15%;
 }
-`
+`,
   );
-
-  //document.body.style.background = bgcolor;
 
   let styleSheet = document.createElement("style");
   styleSheet.innerText = styles;
   document.head.appendChild(styleSheet);
 
-  const tabs = await browser.tabs.query({
-    url: ["<all_urls>"],
-    discarded: false,
-    status: "complete",
-  });
-  sendMessageToTabs(tabs);
+  queryTabs();
+
+  setInterval(async () => {
+    for (const el of document.querySelectorAll(".elementDiv")) {
+      const newdata = await browser.tabs.sendMessage(
+        parseInt(el.getAttribute("tid")),
+        { cmd: "query", id: el.getAttribute("eid") },
+      );
+
+      el.querySelector(".previewImg").setAttribute("src", newdata.poster);
+      el.querySelector(".elementVolumeBtn").setAttribute(
+        "value",
+        newdata.volume * 100,
+      );
+      el.querySelector(".elementMuteBtn").textContent = newdata.muted
+        ? "unmute"
+        : "mute";
+      el.querySelector(".elementPlayPauseBtn").textContent = newdata.playing
+        ? "pause"
+        : "play";
+    }
+  }, 150);
 })();
+
+function isElementInViewport(el) {
+  var rect = el.getBoundingClientRect();
+
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <=
+      (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
+}

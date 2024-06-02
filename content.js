@@ -1,28 +1,43 @@
 /*global browser */
 
-const mediaElements = new Map();
+function getMediaElementBy(id) {
+  return document.querySelector('[tmcuuid="' + id + '"]');
+}
 
 function getThumbnail(video) {
   let canvas = document.createElement("canvas");
   let ctx = canvas.getContext("2d");
   ctx.drawImage(video, 0, 0, 300, 200);
-  return canvas.toDataURL();
+  return canvas.toDataURL("image/jpeg", 0.3);
+}
+
+function handleQuery(id) {
+  const el = getMediaElementBy(id);
+
+  return {
+    poster:
+      el.tagName.toLowerCase() === "video" ? getThumbnail(el) : "audio.png",
+    duration: el.duration,
+    currentTime: el.currentTime,
+    playing: !el.paused,
+    volume: el.volume,
+    muted: el.muted,
+    id,
+  };
 }
 
 // get all media elements and their states
-function handleQuery() {
-  console.debug("handleQuery");
+function handleQueryAll() {
   const ret = [];
   const els = document.querySelectorAll("video,audio");
-  //console.log(els.length);
-  let count = 1;
   for (const el of els) {
-    mediaElements.set(count, el); // required for controlling later
+    let tmcuuid = el.getAttribute("tmcuuid");
+    if (tmcuuid === null) {
+      tmcuuid = crypto.randomUUID();
+      el.setAttribute("tmcuuid", tmcuuid);
+    }
+
     if (
-      /*
-                   el.paused === false
-             ||  el.autoplay === true
-            */
       !isNaN(el.duration) // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/duration
     ) {
       ret.push({
@@ -33,130 +48,130 @@ function handleQuery() {
         playing: !el.paused,
         volume: el.volume,
         muted: el.muted,
-        id: count,
+        id: tmcuuid,
       });
     }
-    count++;
   }
 
   return ret;
 }
 
+function handlePreview(id) {
+  let el = getMediaElementBy(id);
+  if (el) {
+    return getThumbnail(el);
+  }
+  return "";
+}
+
 function handlePause(ids) {
-  console.debug("handlePause");
   for (const id of ids) {
-    if (mediaElements.has(id)) {
-      mediaElements.get(id).pause();
+    let el = getMediaElementBy(id);
+    if (el) {
+      el.pause();
     }
   }
   return "play";
 }
 
 function handlePauseAll() {
-  console.debug("handlePause");
-  for (const [, el] of mediaElements) {
+  for (const el of document.querySelectorAll("video,audio")) {
     el.pause();
   }
-  return "ok";
+}
+
+function handleMuteAll() {
+  for (const el of document.querySelectorAll("video,audio")) {
+    el.muted = true;
+  }
 }
 
 function handlePlay(ids) {
-  console.debug("handlePlay");
   for (const id of ids) {
-    if (mediaElements.has(id)) {
-      mediaElements.get(id).play();
+    let el = getMediaElementBy(id);
+    if (el) {
+      el.play();
     }
   }
-  return "pause";
 }
 
 function handleMute(ids) {
-  console.debug("handleMute");
   for (const id of ids) {
-    if (mediaElements.has(id)) {
-      mediaElements.get(id).muted = true;
+    let el = getMediaElementBy(id);
+    if (el) {
+      el.muted = true;
     }
   }
-  return "unmute";
 }
 
 function handleUnMute(ids) {
-  console.debug("handleUnMute");
   for (const id of ids) {
-    if (mediaElements.has(id)) {
-      mediaElements.get(id).muted = false;
+    let el = getMediaElementBy(id);
+    if (el) {
+      el.muted = false;
     }
   }
-  return "mute";
 }
 
 function handlePIP(ids) {
-  console.debug("handleMute");
   for (const id of ids) {
-    if (mediaElements.has(id)) {
-      mediaElements.get(id).requestPictureInPicture(); // not supported ref. https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestPictureInPicture
+    let el = getMediaElementBy(id);
+    if (el) {
+      el.requestPictureInPicture(); // not supported ref. https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestPictureInPicture
     }
   }
-  return "unmute";
 }
 
-async function handleFullscreen(ids) {
-  console.debug("handleMute");
-  for (const id of ids) {
-    if (mediaElements.has(id)) {
-      try {
-        await mediaElements.get(id).requestFullscreen();
-        return true;
-      } catch (e) {
-        console.error(e);
-        return false;
-      }
+async function handleFullscreen(id) {
+  let el = getMediaElementBy(id);
+  if (el) {
+    try {
+      el.requestFullscreen(); // not doable since action is not recognized as a short running user action
+    } catch (e) {
+      console.error(e);
     }
   }
 }
 
 async function handleVolume(id, volume) {
-  if (mediaElements.has(id)) {
+  let el = getMediaElementBy(id);
+  if (el) {
     try {
-      mediaElements.get(id).volume = volume;
-      return true;
+      el.volume = volume;
     } catch (e) {
       console.error(e);
-      return false;
     }
   }
 }
 
 async function handleCurrentTime(id, currentTime) {
-  if (mediaElements.has(id)) {
+  let el = getMediaElementBy(id);
+  if (el) {
     try {
-      mediaElements.get(id).currentTime = currentTime;
-      return true;
+      el.currentTime = currentTime;
     } catch (e) {
       console.error(e);
-      return false;
     }
   }
 }
 
 async function handleFocus(id) {
-  console.debug("handleFocus", id);
-  if (mediaElements.has(id)) {
+  let el = getMediaElementBy(id);
+  if (el) {
     try {
-      console.debug("scrollIntoView");
-      mediaElements.get(id).scrollIntoView();
-      return true;
+      el.scrollIntoView();
     } catch (e) {
       console.error(e);
-      return false;
     }
   }
 }
 browser.runtime.onMessage.addListener((request) => {
-  console.debug("onMessage", JSON.stringify(request, null, 4));
+  //console.debug("onMessage", JSON.stringify(request, null, 4));
   switch (request.cmd) {
     case "query":
-      return Promise.resolve(handleQuery());
+      return Promise.resolve(handleQuery(request.id));
+    case "queryAll":
+      return Promise.resolve(handleQueryAll());
     case "play":
       return Promise.resolve(handlePlay(request.ids));
     case "pause":
@@ -165,6 +180,8 @@ browser.runtime.onMessage.addListener((request) => {
       return Promise.resolve(handlePauseAll());
     case "mute":
       return Promise.resolve(handleMute(request.ids));
+    case "muteAll":
+      return Promise.resolve(handleMuteAll());
     case "unmute":
       return Promise.resolve(handleUnMute(request.ids));
     case "pip":
@@ -175,22 +192,22 @@ browser.runtime.onMessage.addListener((request) => {
       return Promise.resolve(handleVolume(request.id, request.volume));
     case "currentTime":
       return Promise.resolve(
-        handleCurrentTime(request.id, request.currentTime)
+        handleCurrentTime(request.id, request.currentTime),
       );
     case "focus":
       return Promise.resolve(handleFocus(request.id));
+    case "preview":
+      return Promise.resolve(handlePreview(request.id));
     default:
       console.error("unknown request", request);
       break;
   }
 });
 
-console.debug("content.js");
-
 setTimeout(() => {
-  console.debug("injecting media.js into document head ");
+  //console.debug("injecting media.js into document head ");
   var s = document.createElement("script");
   s.src = browser.runtime.getURL("attach.js");
   s.onload = () => s.remove();
   document.head.appendChild(s);
-}, 5000);
+}, 3000);
