@@ -6,7 +6,7 @@ Control Audio and Video Elements from all tabs from the toolbar button popup men
 
 <b>Short Demo Video:</b>
 
-https://github.com/igorlogius/tabs-media-controller/assets/67047467/f11746cb-ec24-4975-9792-cd3102b4d246
+https://github.com/igorlogius/tabs-media-controller/assets/67047467/86eba39a-751b-4bea-8949-384c1f379f0f
 
 <b>Features:</b>
 <ul>
