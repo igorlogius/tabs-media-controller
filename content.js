@@ -113,7 +113,6 @@ function handleUnMute(ids) {
   }
 }
 
-
 function handlePIP(ids) {
   for (const id of ids) {
     let el = getMediaElementBy(id);

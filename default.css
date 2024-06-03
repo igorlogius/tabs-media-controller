@@ -1,11 +1,39 @@
+:root {
+  /* dark mode */
+  /*
+  --main-bg-color: gray;
+  --main-btn-bgcolor: black;
+  --main-btn-fontcolor: white;
+  */
+
+  /* light mode  */
+  /**/
+  --main-bg-color: lightgray;
+  --main-btn-bgcolor: silver;
+  --main-btn-fontcolor: black;
+  /**/
+}
+
+button {
+  background-color: var(--main-btn-bgcolor);
+  color: var(--main-btn-fontcolor);
+}
+
+button:hover {
+  border-color: black;
+}
+
 body {
   padding: 10px;
   margin: 0;
-  background-color: silver;
+  background-color: var(--main-bg-color);
 }
+
 #tabs {
   padding: 0;
   margin: 0;
+  height: 430px;
+  overflow-y: scroll;
 }
 .tabDiv {
   padding: 10px;
@@ -43,11 +71,11 @@ body {
 .previewImg {
   height: 150px;
   float: left;
-  border: 5px groove gray;
+  border: 5px groove var(--main-bg-color);
 }
 .elementControlsDiv {
   position: relative;
-  border: 5px groove gray;
+  border: 5px groove var(--main-bg-color);
   height: 140px;
   width: 250px;
   float: left;
