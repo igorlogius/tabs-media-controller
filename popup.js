@@ -28,26 +28,36 @@ async function queryTabs() {
         }
 
         const url = new URL(tab.url);
+        const favIconUrl = tab.favIconUrl || "";
 
         let tabdiv = document.createElement("div");
         tabdiv.classList.add("tabDiv");
+        /*let seperator = document.createElement("hr");
+        tabdiv.appendChild(seperator);*/
+
         tablist.appendChild(tabdiv);
 
+        let tabFavImg = document.createElement("img");
+        tabFavImg.classList.add("tabFavImg");
+        tabFavImg.src = favIconUrl;
         let tablink = document.createElement("button");
+
         tablink.textContent =
           "#" + tab.index + " " + url.hostname.replace(/^www\./, "");
         tablink.classList.add("tabFocusBtn");
         tabdiv.appendChild(tablink);
-        tablink.setAttribute("title", "click to focus");
+        tablink.setAttribute("title", "focus tab");
         tablink.onclick = () => {
           browser.tabs.highlight({ windowId: tab.windowId, tabs: [tab.index] });
         };
+        tablink.appendChild(tabFavImg);
 
         let mutetabbtn = document.createElement("button");
         mutetabbtn.textContent = tab.mutedInfo.muted
           ? "unmute(tab)"
           : "mute(tab)";
         mutetabbtn.classList.add("tabMuteBtn");
+        mutetabbtn.setAttribute("title", "mute tab");
         tabdiv.appendChild(mutetabbtn);
         mutetabbtn.onclick = async () => {
           const t = await browser.tabs.get(tab.id);
@@ -60,6 +70,7 @@ async function queryTabs() {
         let pausetabbtn = document.createElement("button");
         pausetabbtn.textContent = "pause(tab)";
         pausetabbtn.classList.add("tabPauseBtn");
+        pausetabbtn.setAttribute("title", "pause tab");
         tabdiv.appendChild(pausetabbtn);
         pausetabbtn.onclick = () => {
           browser.tabs.sendMessage(tab.id, { cmd: "pauseAll" });
@@ -68,6 +79,7 @@ async function queryTabs() {
         let pauseOriginbtn = document.createElement("button");
         pauseOriginbtn.textContent = "pause(site)";
         pauseOriginbtn.classList.add("sitePauseBtn");
+        pauseOriginbtn.setAttribute("title", "pause site");
         tabdiv.appendChild(pauseOriginbtn);
         pauseOriginbtn.onclick = () => {
           for (const tt of tabs) {
@@ -80,6 +92,7 @@ async function queryTabs() {
         let muteOriginbtn = document.createElement("button");
         muteOriginbtn.textContent = "mute(site)";
         muteOriginbtn.classList.add("siteMuteBtn");
+        muteOriginbtn.setAttribute("title", "mute site");
         tabdiv.appendChild(muteOriginbtn);
         muteOriginbtn.onclick = async () => {
           for (const tt of tabs) {
@@ -113,6 +126,7 @@ async function queryTabs() {
           let focusbtn = document.createElement("button");
           focusbtn.textContent = "focus";
           focusbtn.classList.add("elementFocusBtn");
+          focusbtn.setAttribute("title", "focus element");
           controls.appendChild(focusbtn);
           focusbtn.onclick = async (evt) => {
             await browser.windows.update(tab.windowId, { focused: true });
@@ -130,6 +144,7 @@ async function queryTabs() {
           let mutebtn = document.createElement("button");
           mutebtn.textContent = e.muted ? "unmute" : "mute";
           mutebtn.classList.add("elementMuteBtn");
+          mutebtn.setAttribute("title", "un/mute element");
           controls.appendChild(mutebtn);
           mutebtn.onclick = (evt) => {
             browser.tabs.sendMessage(tab.id, {
@@ -146,6 +161,7 @@ async function queryTabs() {
           volumebtn.setAttribute("step", "1");
           volumebtn.setAttribute("value", e.volume * 100);
           volumebtn.classList.add("elementVolumeBtn");
+          volumebtn.setAttribute("title", "change volume");
           controls.appendChild(volumebtn);
           volumebtn.addEventListener("input", (evt) => {
             browser.tabs.sendMessage(tab.id, {
@@ -159,6 +175,7 @@ async function queryTabs() {
           let playpausebtn = document.createElement("button");
           playpausebtn.textContent = e.playing ? "pause" : "play";
           playpausebtn.classList.add("elementPlayPauseBtn");
+          playpausebtn.setAttribute("title", "play/pause element");
           controls.appendChild(playpausebtn);
           playpausebtn.onclick = async (evt) => {
             browser.tabs.sendMessage(tab.id, {
@@ -178,6 +195,7 @@ async function queryTabs() {
           currentTimebtn.setAttribute("value", e.currentTime);
 
           currentTimebtn.classList.add("elementTimeBtn");
+          currentTimebtn.setAttribute("title", "change playback position");
           controls.appendChild(currentTimebtn);
           currentTimebtn.addEventListener("input", (evt) => {
             browser.tabs.sendMessage(tab.id, {

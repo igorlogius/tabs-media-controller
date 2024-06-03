@@ -32,6 +32,6 @@
     "page": "options.html"
   },
   "permissions": ["storage", "tabs"],
-  "version": "1.5.15",
+  "version": "1.5.16",
   "web_accessible_resources": ["attach.js"]
 }
