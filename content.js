@@ -113,11 +113,15 @@ function handleUnMute(ids) {
   }
 }
 
+
 function handlePIP(ids) {
   for (const id of ids) {
     let el = getMediaElementBy(id);
     if (el) {
-      el.requestPictureInPicture(); // not supported ref. https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestPictureInPicture
+      // not supported ref. https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestPictureInPicture
+      // and since bug https://bugzilla.mozilla.org/show_bug.cgi?id=1463402
+      // is closed with WONTFIX, this feature wont be available any time soon it seems
+      el.requestPictureInPicture();
     }
   }
 }
