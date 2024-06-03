@@ -10,6 +10,11 @@
     "default_popup": "popup.html"
   },
   "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "F1"
+      }
+    },
     "gotoNextRight": {
       "description": "switch to next audible tab right"
     },
@@ -32,6 +37,6 @@
     "page": "options.html"
   },
   "permissions": ["storage", "tabs"],
-  "version": "1.5.18",
+  "version": "1.5.19",
   "web_accessible_resources": ["attach.js"]
 }

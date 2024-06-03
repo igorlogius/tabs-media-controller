@@ -53,18 +53,14 @@ async function queryTabs() {
         tablink.appendChild(tabFavImg);
 
         let mutetabbtn = document.createElement("button");
-        mutetabbtn.textContent = tab.mutedInfo.muted
-          ? "unmute(tab)"
-          : "mute(tab)";
+        mutetabbtn.textContent = "mute(tab)";
         mutetabbtn.classList.add("tabMuteBtn");
         mutetabbtn.setAttribute("title", "mute tab");
         tabdiv.appendChild(mutetabbtn);
         mutetabbtn.onclick = async () => {
-          const t = await browser.tabs.get(tab.id);
-          browser.tabs.update(tab.id, { muted: !t.mutedInfo.muted });
-          mutetabbtn.textContent = !t.mutedInfo.muted
-            ? "unmute(tab)"
-            : "mute(tab)";
+          browser.tabs.sendMessage(tab.id, {
+            cmd: "muteAll",
+          });
         };
 
         let pausetabbtn = document.createElement("button");
@@ -210,6 +206,7 @@ async function queryTabs() {
       console.error("tab ", tab.index, e);
     }
   }
+  tablist.focus();
 }
 
 (async () => {
