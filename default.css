@@ -24,6 +24,7 @@ button:hover {
 }
 
 body {
+  max-width: 595px;
   padding: 10px;
   margin: 0;
   background-color: var(--main-bg-color);
@@ -72,6 +73,8 @@ body {
   height: 150px;
   float: left;
   border: 5px groove var(--main-bg-color);
+  margin-left: 5px;
+  width: 300px;
 }
 .elementControlsDiv {
   position: relative;
@@ -106,3 +109,4 @@ body {
   width: 70%;
   margin-left: 15%;
 }
+
