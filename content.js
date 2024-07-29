@@ -22,6 +22,7 @@ function handleQuery(id) {
     playing: !el.paused,
     volume: el.volume,
     muted: el.muted,
+    playbackRate: el.playbackRate,
     id,
   };
 }
@@ -48,6 +49,7 @@ function handleQueryAll() {
         playing: !el.paused,
         volume: el.volume,
         muted: el.muted,
+        playbackRate: el.playbackRate,
         id: tmcuuid,
       });
     }
@@ -136,6 +138,17 @@ async function handleFullscreen(id) {
   }
 }
 
+async function handlePlaybackRate(id, playbackRate) {
+  let el = getMediaElementBy(id);
+  if (el) {
+    try {
+      el.playbackRate = playbackRate;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+}
+
 async function handleVolume(id, volume) {
   let el = getMediaElementBy(id);
   if (el) {
@@ -193,6 +206,10 @@ browser.runtime.onMessage.addListener((request) => {
       return Promise.resolve(handleFullscreen(request.ids));
     case "volume":
       return Promise.resolve(handleVolume(request.id, request.volume));
+    case "playbackRate":
+      return Promise.resolve(
+        handlePlaybackRate(request.id, request.playbackRate),
+      );
     case "currentTime":
       return Promise.resolve(
         handleCurrentTime(request.id, request.currentTime),

@@ -43,7 +43,12 @@ async function queryTabs() {
         let tablink = document.createElement("button");
 
         tablink.textContent =
-          "#" + tab.index + " " + url.hostname.replace(/^www\./, "");
+          "#" +
+          tab.index +
+          " " +
+          url.hostname.replace(/^www\./, "") +
+          " - " +
+          tab.title;
         tablink.classList.add("tabFocusBtn");
         tabdiv.appendChild(tablink);
         tablink.setAttribute("title", "focus tab");
@@ -135,6 +140,32 @@ async function queryTabs() {
               id: e.id,
             });
           };
+
+          // playbackRate
+          let playbackRatebtn = document.createElement("input");
+          playbackRatebtn.setAttribute("type", "range");
+          playbackRatebtn.setAttribute("min", "25");
+          playbackRatebtn.setAttribute("max", "400");
+          playbackRatebtn.setAttribute("step", "1");
+          playbackRatebtn.setAttribute("value", e.playbackRate * 100);
+          playbackRatebtn.classList.add("elementPlaybackRateBtn");
+          playbackRatebtn.setAttribute(
+            "title",
+            "Playback Rate: " + e.playbackRate,
+          );
+          controls.appendChild(playbackRatebtn);
+          playbackRatebtn.addEventListener("input", (evt) => {
+            browser.tabs.sendMessage(tab.id, {
+              cmd: "playbackRate",
+              id: e.id,
+              playbackRate: evt.target.value / 100,
+            });
+
+            evt.target.setAttribute(
+              "title",
+              "Playback Rate: " + evt.target.value / 100,
+            );
+          });
 
           // mute
           let mutebtn = document.createElement("button");
@@ -301,6 +332,19 @@ body {
       el.querySelector(".elementVolumeBtn").setAttribute(
         "value",
         newdata.volume * 100,
+      );
+      el.querySelector(".elementVolumeBtn").setAttribute(
+        "title",
+        "Volume: " + newdata.volume * 100,
+      );
+
+      el.querySelector(".elementTimeBtn").setAttribute(
+        "value",
+        newdata.currentTime,
+      );
+      el.querySelector(".elementTimeBtn").setAttribute(
+        "title",
+        "CurrentTime: " + newdata.currentTime,
       );
       el.querySelector(".elementMuteBtn").textContent = newdata.muted
         ? "unmute"
