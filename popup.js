@@ -16,10 +16,40 @@ async function queryTabs() {
     status: "complete",
   });
 
+  // lets move the audible tabs to the front/top
+  tabs.sort((a, b) => {
+    if (a.audible && !b.audible) {
+      return -1;
+    }
+    if (b.audible && !a.audible) {
+      return 1;
+    }
+    return 0;
+  });
+
   for (const tab of tabs) {
     try {
       const res = await browser.tabs.sendMessage(tab.id, { cmd: "queryAll" });
       //console.debug(JSON.stringify(res, null, 4));
+
+      res.sort((a, b) => {
+        if (a.playing && !b.playing) {
+          return -1;
+        }
+        if (b.playing && !a.playing) {
+          return 1;
+        }
+        if (a.playing && b.playing) {
+          if (!a.muted && b.muted) {
+            return -1;
+          }
+          if (a.muted && !b.muted) {
+            return 1;
+          }
+          // both are muted or unmuted => equal
+        }
+        return 0;
+      });
 
       if (res.length > 0) {
         if (first) {
