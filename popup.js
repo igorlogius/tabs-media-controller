@@ -7,6 +7,22 @@ async function getFromStorage(type, id, fallback) {
 
 const tablist = document.getElementById("tabs");
 
+function addDataListToRange(numberArray, rangeEl, attachEl) {
+  const datalistid = "rangeSteps" + Date.now();
+
+  rangeEl.setAttribute("list", datalistid);
+  let datalistEl = document.createElement("datalist");
+  datalistEl.setAttribute("id", datalistid);
+
+  numberArray.forEach((val) => {
+    let opt = document.createElement("option");
+    opt.innerText = val;
+    datalistEl.appendChild(opt);
+  });
+
+  attachEl.appendChild(datalistEl);
+}
+
 async function queryTabs() {
   let first = true;
 
@@ -175,13 +191,19 @@ async function queryTabs() {
           let playbackRatebtn = document.createElement("input");
           playbackRatebtn.setAttribute("type", "range");
           playbackRatebtn.setAttribute("min", "25");
-          playbackRatebtn.setAttribute("max", "400");
+          playbackRatebtn.setAttribute("max", "175");
           playbackRatebtn.setAttribute("step", "1");
           playbackRatebtn.setAttribute("value", e.playbackRate * 100);
           playbackRatebtn.classList.add("elementPlaybackRateBtn");
           playbackRatebtn.setAttribute(
             "title",
             "Playback Rate: " + e.playbackRate,
+          );
+
+          addDataListToRange(
+            [25, 50, 75, 100, 125, 150, 175],
+            playbackRatebtn,
+            controls,
           );
           controls.appendChild(playbackRatebtn);
           playbackRatebtn.addEventListener("input", (evt) => {
@@ -219,7 +241,9 @@ async function queryTabs() {
           volumebtn.setAttribute("value", e.volume * 100);
           volumebtn.classList.add("elementVolumeBtn");
           volumebtn.setAttribute("title", "change volume");
+          addDataListToRange([0, 25, 50, 75, 100], volumebtn, controls);
           controls.appendChild(volumebtn);
+
           volumebtn.addEventListener("input", (evt) => {
             browser.tabs.sendMessage(tab.id, {
               cmd: "volume",
@@ -245,7 +269,7 @@ async function queryTabs() {
           let currentTimebtn = document.createElement("input");
           currentTimebtn.setAttribute("type", "range");
           currentTimebtn.setAttribute("min", "0");
-          currentTimebtn.setAttribute("max", e.duration);
+          currentTimebtn.setAttribute("max", "" + parseInt(e.duration));
           if (e.duration === -1) {
             currentTimebtn.setAttribute("disabled", "disabled");
           }
@@ -253,12 +277,25 @@ async function queryTabs() {
 
           currentTimebtn.classList.add("elementTimeBtn");
           currentTimebtn.setAttribute("title", "change playback position");
+
+          addDataListToRange(
+            [
+              0,
+              parseInt(e.duration) / 4,
+              parseInt(e.duration) / 2,
+              (parseInt(e.duration) / 4) * 3,
+              parseInt(e.duration),
+            ],
+            currentTimebtn,
+            controls,
+          );
+
           controls.appendChild(currentTimebtn);
           currentTimebtn.addEventListener("input", (evt) => {
             browser.tabs.sendMessage(tab.id, {
               cmd: "currentTime",
               id: e.id,
-              currentTime: evt.target.value,
+              currentTime: parseInt(evt.target.value),
             });
           });
         }

@@ -33,7 +33,6 @@ body {
 #tabs {
   padding: 0;
   margin: 0;
-  max-height: 430px;
   overflow-y: scroll;
 }
 .tabDiv {
@@ -67,19 +66,21 @@ body {
 }
 .elementDiv {
   width: 100%;
-  height: 150px;
+  height: 175px;
 }
 .previewImg {
-  height: 150px;
+  height: 170px;
   float: left;
   border: 5px groove var(--main-bg-color);
   margin-left: 5px;
-  width: 300px;
+  padding-bottom: 3px;
+  padding-right: 3px;
+  width: 297px;
 }
 .elementControlsDiv {
   position: relative;
   border: 5px groove var(--main-bg-color);
-  height: 140px;
+  height: 162px;
   width: 250px;
   float: left;
   padding-top: 10px;
